@@ -35,4 +35,12 @@ Install selenium: pip install selenium
 Check pip list for selenium: pip list
 
 (Optional) Exit virtual environment: deactivate folder_env
+----------------------------------------------------------
+For edit later:
+When using the get_jobs functions make sure to make the delay based on your internet speed.
 
+If you're getting an error such as 
+
+"StaleElementReferenceException: stale element reference: element is not attached to the page document
+  (Session info: chrome=87.0.4280.88)"
+Increase your delay to 30-50 if you have slow internet
