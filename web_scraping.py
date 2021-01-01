@@ -24,7 +24,7 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
     
     #Change the path to where chromedriver is in your home folder.
     driver = webdriver.Chrome(executable_path=path, options=options)
-    driver.set_window_size(1120, 1000)
+    driver.set_window_size(1520, 1500)
 #For GA    
     url = "https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword="+keyword+"&sc.keyword="+keyword+"&locT=S&locId=3426&jobType="
 #For     
@@ -54,16 +54,16 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
             print('Testing Failed')
             pass
         
-    while not clickable: 
-        try:
-            driver.find_element_by_xpath('.//div[contains(@data-test, "SALRANGE")]').click()
-            driver.find_element_by_class_name('checkboxBox').click()
-            driver.find_element_by_css_selector('[alt="applybutton gd-btn gd-btn-link gradient gd-btn-2 gd-btn-sm]').click()
-            clickable = True 
-            print('Working')
-        except NoSuchElementException:
-            print('Testing Failed')
-            pass
+        while not clickable: 
+            try:
+                driver.find_element_by_id('filter_minSalary').click()
+                driver.find_element_by_xpath('.//div[@class="checkboxBox"]').click()
+                driver.find_element_by_xpath('.//button[@class="applybutton gd-btn gd-btn-link gradient gd-btn-2 gd-btn-sm"]').click()
+                clickable = True 
+                print('Working')
+            except NoSuchElementException:
+                print('Testing Failed')
+                pass
         
  #------------------------------------------       
         #Going through each job in this page
@@ -113,14 +113,14 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
             try:
                 driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="overview"]').click()
 
-                try:
+                #try:
                     #<div class="infoEntity">
                     #    <label>Headquarters</label>
                     #    <span class="value">San Francisco, CA</span>
                     #</div>
-                    headquarters = driver.find_element_by_xpath('.//div[@class="infoEntity"]//label[text()="Headquarters"]//following-sibling::*').text
-                except NoSuchElementException:
-                    headquarters = -1
+               #     headquarters = driver.find_element_by_xpath('.//div[@class="infoEntity"]//label[text()="Headquarters"]//following-sibling::*').text
+               # except NoSuchElementException:
+               #     headquarters = -1
 
                 try:
                     size = driver.find_element_by_xpath('.//div[@class="infoEntity"]//label[text()="Size"]//following-sibling::*').text
@@ -151,32 +151,43 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                     revenue = driver.find_element_by_xpath('.//div[@class="infoEntity"]//label[text()="Revenue"]//following-sibling::*').text
                 except NoSuchElementException:
                     revenue = -1
-
+#-------------------------------- The competitor part have been remove from the company pages
+               # try:
+               #     competitors = driver.find_element_by_xpath('.//div[@class="infoEntity"]//label[text()="Competitors"]//following-sibling::*').text
+               # except NoSuchElementException:
+               #     competitors = -1
+#-------------------------------- Going to another pages and getting the ceo name                 
                 try:
-                    competitors = driver.find_element_by_xpath('.//div[@class="infoEntity"]//label[text()="Competitors"]//following-sibling::*').text
+                    driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="overview"]').click()
                 except NoSuchElementException:
-                    competitors = -1
+                    print('error')
 
             except NoSuchElementException:  #Rarely, some job postings do not have the "Company" tab.
-                headquarters = -1
+               # headquarters = -1
                 size = -1
                 founded = -1
                 type_of_ownership = -1
                 industry = -1
                 sector = -1
                 revenue = -1
-                competitors = -1
+               # competitors = -1
+            try:
+                driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="overview"]').click()
+                
+                
+            except NoSuchElementException:
+                    print('error')
 
                 
             if verbose:
-                print("Headquarters: {}".format(headquarters))
+               # print("Headquarters: {}".format(headquarters))
                 print("Size: {}".format(size))
                 print("Founded: {}".format(founded))
                 print("Type of Ownership: {}".format(type_of_ownership))
                 print("Industry: {}".format(industry))
                 print("Sector: {}".format(sector))
                 print("Revenue: {}".format(revenue))
-                print("Competitors: {}".format(competitors))
+               # print("Competitors: {}".format(competitors))
                 print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
             jobs.append({"Job Title" : job_title,
@@ -185,14 +196,15 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
             "Rating" : rating,
             "Company Name" : company_name,
             "Location" : location,
-            "Headquarters" : headquarters,
+          #  "Headquarters" : headquarters,
             "Size" : size,
             "Founded" : founded,
             "Type of ownership" : type_of_ownership,
             "Industry" : industry,
             "Sector" : sector,
             "Revenue" : revenue,
-            "Competitors" : competitors})
+            #"Competitors" : competitors
+            })
             #add job to jobs
 
         #Clicking on the "next page" button
