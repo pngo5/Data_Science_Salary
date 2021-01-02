@@ -45,24 +45,43 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
             pass
 
         time.sleep(.1)
-#-------------------------------------------Bug:number 1 FIX THIS
+#-------------------------------------------Close the pop-up, and move on with the search.
+#-------------------------------------------Created a variable call clickable, and employ for it to go alone with the loop.
         try:
             driver.find_element_by_css_selector('[alt="Close"]').click()
             clickable = False
-            print('Testing worked')
+            employess = False
+            
+            print('Pop-up has been closed')
         except NoSuchElementException:
-            print('Testing Failed')
+            print('There no such element for pop-up')
             pass
-        
+        #Filter by company with salary
         while not clickable: 
-            try:
+            try:                
                 driver.find_element_by_id('filter_minSalary').click()
                 driver.find_element_by_xpath('.//div[@class="checkboxBox"]').click()
                 driver.find_element_by_xpath('.//button[@class="applybutton gd-btn gd-btn-link gradient gd-btn-2 gd-btn-sm"]').click()
                 clickable = True 
-                print('Working')
+                print('Salary filter is working')
             except NoSuchElementException:
-                print('Testing Failed')
+                print('Can not find Salary filter')
+                pass
+        #filter by 5000 Plus employees   
+        while not employess: 
+            try:
+                driver.find_element_by_xpath('.//div[@class="filter more expandable"]').click()
+                driver.find_element_by_xpath('.//div[@class="filter more expandable expanded"]//div[@id="filter_employerSizes"]').click()
+                driver.find_element_by_xpath('.//ul[@class="css-1dv4b0s ew8xong0"]//li[@value="5"]').click()
+                time.sleep(.05)             
+                driver.find_element_by_xpath('.//div[@class="allDropdowns"]//div[@class="filter more expandable expanded applied"]').click()
+                employess = True 
+                print('Company size filter working')
+            except NoSuchElementException:               
+                print('Company filter failed')
+                driver.find_element_by_xpath('.//div[@class="allDropdowns"]//div[@class="filter more expandable expanded applied"]').click()
+                employess = True 
+                
                 pass
         
  #------------------------------------------       
@@ -157,10 +176,6 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                # except NoSuchElementException:
                #     competitors = -1
 #-------------------------------- Going to another pages and getting the ceo name                 
-                try:
-                    driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="overview"]').click()
-                except NoSuchElementException:
-                    print('error')
 
             except NoSuchElementException:  #Rarely, some job postings do not have the "Company" tab.
                # headquarters = -1
@@ -172,11 +187,40 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                 revenue = -1
                # competitors = -1
             try:
-                driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="overview"]').click()
+                driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="rating"]').click()
+                driver.execute_script("window.scrollTo(1200, document.body.scrollHeight);")
+                #Sleeping for .1 to make sure its loading correctly #MAKE CHANGES BASED ON INTERNET SPEED
+                time.sleep(.4)
+                try:
+                    ceo= driver.find_element_by_xpath('//*[@id="RatingContainer"]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]').text
+                except NoSuchElementException:
+                     ceo = -1
+                
+                #Getting the rating of the company
+                try:
+                    compensation_benefits= driver.find_element_by_xpath('.//strong[text()="Culture & Values"]//following-sibling::*').text
+                except NoSuchElementException:
+                     compensation_benefits = -1
+                try:
+                    culture_values = driver.find_element_by_xpath('.//strong[text()="Compensation & Benefits"]//following-sibling::*').text
+                except NoSuchElementException:
+                       culture_values = -1
+                try:
+                    career_opportunities = driver.find_element_by_xpath('.//strong[text()="Career Opportunities"]//following-sibling::*').text
+                except NoSuchElementException:
+                       career_opportunities = -1
+                try:
+                    work_life_balance = driver.find_element_by_xpath('.//strong[text()="Work/Life Balance"]//following-sibling::*').text
+                except NoSuchElementException:
+                       work_life_balance = -1
                 
                 
             except NoSuchElementException:
-                    print('error')
+                    compensation_benefits = -1
+                    culture_values = -1
+                    career_opportunities = -1
+                    work_life_balance = -1
+                    ceo = -1
 
                 
             if verbose:
@@ -187,13 +231,17 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                 print("Industry: {}".format(industry))
                 print("Sector: {}".format(sector))
                 print("Revenue: {}".format(revenue))
+                print("Compensation & Benefits: {}".format(compensation_benefits))
+                print("Culture & Values: {}".format(culture_values)) 
+                print("Career Opportunities: {}".format(career_opportunities))
+                print("Work/Life Balance: {}".format(work_life_balance))
+                print("Ceo : {}".format(ceo))
                # print("Competitors: {}".format(competitors))
                 print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
             jobs.append({"Job Title" : job_title,
             "Salary Estimate" : salary_estimate,
             "Job Description" : job_description,
-            "Rating" : rating,
             "Company Name" : company_name,
             "Location" : location,
           #  "Headquarters" : headquarters,
@@ -203,6 +251,12 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
             "Industry" : industry,
             "Sector" : sector,
             "Revenue" : revenue,
+            "CEO" : ceo,
+            "Overall Rating" : rating,
+            "Culture & Values" : culture_values,
+            "Compensation & Benefits": compensation_benefits,
+            "Career Opportunities:": career_opportunities,
+            "Work/Life Balance" : work_life_balance,
             #"Competitors" : competitors
             })
             #add job to jobs
