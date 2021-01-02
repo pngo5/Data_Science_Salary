@@ -130,7 +130,7 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
             #clicking on this:
             #<div class="tab" data-tab-type="overview"><span>Company</span></div>
             try:
-                driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="overview"]').click()
+                driver.find_element_by_xpath(',//*[@id="SerpFixedHeader"]/div/div/div[3]').click()
 
                 #try:
                     #<div class="infoEntity">
@@ -187,8 +187,7 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                 revenue = -1
                # competitors = -1
             try:
-                driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="rating"]').click()
-                driver.execute_script("window.scrollTo(1200, document.body.scrollHeight);")
+                driver.find_element_by_xpath('./html/body/div[3]/div/div/div[1]/div/div[2]/section/div/div/article/div/div[1]/div/div/div[4]/div/div/div[4]').click()
                 #Sleeping for .1 to make sure its loading correctly #MAKE CHANGES BASED ON INTERNET SPEED
                 time.sleep(.4)
                 try:
@@ -221,6 +220,8 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                     career_opportunities = -1
                     work_life_balance = -1
                     ceo = -1
+                    
+           
 
                 
             if verbose:
