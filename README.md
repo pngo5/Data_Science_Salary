@@ -39,15 +39,8 @@ Check pip list for selenium: pip list
 For edit later:
 When using the get_jobs functions make sure to make the delay based on your internet speed.
 
-If you're getting an error such as (NEED TI BE FIX)
-----
+If you're getting an error such as 
+
 "StaleElementReferenceException: stale element reference: element is not attached to the page document
   (Session info: chrome=87.0.4280.88)"
 Increase your delay to 30-50 if you have slow internet
-----
-ElementClickInterceptedException: element click intercepted: Element <div class="tab" data-test="tab" data-tab-type="rating" data-brandviews="MODULE:n=jobs-jobDescription:eid=20642:jlid=3782225961">...</div> is not clickable at point (883, 576). Other element would receive the click: <div id="JDCol" class="noPad">...</div>
-  (Session info: chrome=87.0.4280.88)
----
-ElementNotInteractableException: element not interactable: element has zero size
-  (Session info: chrome=87.0.4280.88)
-
