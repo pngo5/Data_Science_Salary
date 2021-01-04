@@ -7,12 +7,27 @@ Created on 12/21/2020
 
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 import time
 import pandas as pd
-
+#https://www.selenium.dev/exceptions/#stale_element_reference
 #https://github.com/arapfaik/scraping-glassdoor-selenium/blob/master/glassdoor%20scraping.ipynb
 
-def get_jobs(keyword, num_jobs, verbose,path,slp_time):
+
+
+
+
+def get_jobs(keyword, num_jobs, verbose,path,slp_time):    
+    def find(driver,path):
+        element = driver.find_elements_by_id(path)
+        if element:
+            return element
+        else:
+            return False
     
     '''Gathers jobs as a dataframe, scraped from Glassdoor'''
     
@@ -67,6 +82,7 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
             except NoSuchElementException:
                 print('Can not find Salary filter')
                 pass
+            time.sleep(.1)
         #filter by 5000 Plus employees   
         while not employess: 
             try:
@@ -79,7 +95,7 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                 print('Company size filter working')
             except NoSuchElementException:               
                 print('Company filter failed')
-                driver.find_element_by_xpath('.//div[@class="allDropdowns"]//div[@class="filter more expandable expanded applied"]').click()
+
                 employess = True 
                 
                 pass
@@ -94,7 +110,7 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                 break
 
             job_button.click()  #You might 
-            time.sleep(1)
+            time.sleep(2)
             collected_successfully = False
             
             while not collected_successfully:
@@ -104,8 +120,9 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                     job_title = driver.find_element_by_xpath('.//div[contains(@class, "title")]').text
                     job_description = driver.find_element_by_xpath('.//div[@class="jobDescriptionContent desc"]').text
                     collected_successfully = True
-                except:
+                except :
                     time.sleep(5)
+                 
 
             try:
                 salary_estimate = driver.find_element_by_xpath('.//span[@class="css-1uyte9r css-hca4ks e1wijj242"]').text
@@ -130,8 +147,8 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
             #clicking on this:
             #<div class="tab" data-tab-type="overview"><span>Company</span></div>
             try:
-                driver.find_element_by_xpath(',//*[@id="SerpFixedHeader"]/div/div/div[3]').click()
-
+                driver.find_element_by_xpath('.//span[text()="Company"]').click()
+                time.sleep(1)
                 #try:
                     #<div class="infoEntity">
                     #    <label>Headquarters</label>
@@ -187,11 +204,11 @@ def get_jobs(keyword, num_jobs, verbose,path,slp_time):
                 revenue = -1
                # competitors = -1
             try:
-                driver.find_element_by_xpath('./html/body/div[3]/div/div/div[1]/div/div[2]/section/div/div/article/div/div[1]/div/div/div[4]/div/div/div[4]').click()
+                driver.find_element_by_xpath('.//span[text()="Rating"]').click()
                 #Sleeping for .1 to make sure its loading correctly #MAKE CHANGES BASED ON INTERNET SPEED
-                time.sleep(.4)
+                time.sleep(2)
                 try:
-                    ceo= driver.find_element_by_xpath('//*[@id="RatingContainer"]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]').text
+                    ceo= driver.find_element_by_xpath('.//*[@id="RatingContainer"]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]').text
                 except NoSuchElementException:
                      ceo = -1
                 
