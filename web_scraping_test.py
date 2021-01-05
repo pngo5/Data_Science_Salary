@@ -101,13 +101,7 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
 
         
         #Going through each job in this page
-        try:
-             job_buttons = WebDriverWait(driver, slp_time,ignored_exceptions=ignored_exceptions).until(
-             EC.visibility_of_all_elements_located((By.CLASS_NAME,'jl')))
-             
-             #job_buttons = driver.find_elements_by_class_name("jl")
-        except: 
-            pass
+        job_buttons = driver.find_elements_by_class_name("jl") 
       
         
         #jl for Job Listing. These are the buttons we're going to click.
@@ -116,8 +110,10 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
             print("Progress: {}".format("" + str(len(jobs)) + "/" + str(num_jobs)))
             if len(jobs) >= num_jobs:
                 break
-            actions.move_to_element(job_button).perform()
-            job_button.click()  #You might 
+        
+            
+            driver.execute_script("arguments[0].click();", job_button)
+            #You might 
             time.sleep(1)
             collected_successfully = False
             
@@ -146,7 +142,7 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
                     collected_successfully = True
                                        
                 except (NoSuchElementException,TimeoutException,ElementNotInteractableException,StaleElementReferenceException):
-                    job_description = -1
+                    time.sleep(5)
                     
 
             try:
@@ -311,10 +307,9 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
             actions.move_to_element(nextpages).perform()
             nextpages.click()
             #driver.find_element_by_xpath('.//li[@class="next"]//a').click()
-            driver.refresh()
-            drop_box = WebDriverWait(driver, slp_time).until(
-                   EC.presence_of_element_located((By.XPATH,'.//div[@class="allDropdowns"]//div[@class="filter more expandable expanded applied"]')))
-            drop_box.click()
+            #drop_box = WebDriverWait(driver, slp_time).until(
+                   #EC.presence_of_element_located((By.XPATH,'.//div[@class="allDropdowns"]//div[@class="filter more expandable expanded applied"]')))
+            #drop_box.click()
             
         except (NoSuchElementException,ElementNotInteractableException,StaleElementReferenceException):
             print("Scraping terminated before reaching target number of jobs. Needed {}, got {}.".format(num_jobs, len(jobs)))
