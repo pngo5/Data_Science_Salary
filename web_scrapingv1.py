@@ -151,7 +151,7 @@ def get_jobs(keyword, num_jobs,verbose,path,slp_time):
                 competitors = -1
 
                 
-<<<<<<< HEAD
+
             if verbose:
                 print("Headquarters: {}".format(headquarters))
                 print("Size: {}".format(size))
@@ -179,60 +179,7 @@ def get_jobs(keyword, num_jobs,verbose,path,slp_time):
             "Competitors" : competitors})
             #add job to jobs
 
-        #Clicking on the "next page" button
-        try:
-            driver.find_element_by_xpath('.//li[@class="next"]//a').click()
-        except NoSuchElementException:
-            print("Scraping terminated before reaching target number of jobs. Needed {}, got {}.".format(num_jobs, len(jobs)))
-            break
 
-    return pd.DataFrame(jobs)  #This line converts the dictionary object into a pandas DataFrame.
-=======
-                while not collected_successfully:
-                    try:
-                        company_name = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH,'.//div[@class="employerName"]'))).text
-                        
-                        
-                        location = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH,'.//div[@class="location"]'))).text
-                        
-                        job_title = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH,'.//div[contains(@class, "title")]'))).text
-                        
-                        job_description = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH,'.//div[@class="jobDescriptionContent desc"]'))).text
-
-                       #company_name= driver.find_element_by_xpath('.//div[@class="employerName"]').text
-                       # location = driver.find_element_by_xpath('.//div[@class="location"]').text
-                       # job_title = driver.find_element_by_xpath('.//div[contains(@class, "title")]').text
-                       # job_description = driver.find_element_by_xpath('.//div[@class="jobDescriptionContent desc"]').text
-                        collected_successfully = True
-                    except :
-                        time.sleep(5)
-                try:
-                    #salary_estimate = driver.find_element_by_xpath('.//span[@class="css-1uyte9r css-hca4ks e1wijj242"]').text
-                     salary_estimate = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH,'.//span[@class="css-1uyte9r css-hca4ks e1wijj242"]'))).text
-                    
-                except NoSuchElementException:
-                    salary_estimate = -1 #You need to set a "not found value. It's important."
-                
-                try:
-                    #rating = driver.find_element_by_xpath('.//span[@class="rating"]').text
-                     rating = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH,'.//span[@class="rating"]'))).text
-                except NoSuchElementException:
-                    rating = -1 #You need to set a "not found value. It's important."
-    
-                #Printing for debugging
-                if verbose:
-                    print("Job Title: {}".format(job_title))
-                    print("Salary Estimate: {}".format(salary_estimate))
-                    print("Job Description: {}".format(job_description[:500]))
-                    print("Rating: {}".format(rating))
-                    print("Company Name: {}".format(company_name))
-                    print("Location: {}".format(location))
                 try:
                     driver.find_element_by_xpath('.//span[text()="Company"]').click()
                     time.sleep(1)
@@ -384,4 +331,4 @@ def get_jobs(keyword, num_jobs,verbose,path,slp_time):
                 break
 
     return pd.DataFrame(jobs)  #This line converts the dictionary object into a pandas DataFrame.
->>>>>>> 40a336f3f3ddf5f3994a3770322762f8e36d799c
+

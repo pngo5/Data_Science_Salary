@@ -30,6 +30,7 @@ def get_jobs(keyword, location, num_jobs, verbose, path, slp_time):
     driver.get('https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword=&sc.keyword=&locT=&locId=&jobType=')
     
     #Uses first variable in function to input job title
+    search = driver.find_element_by_id("LocationSearch").clear()
     search = driver.find_element_by_id("KeywordSearch")
     search.send_keys(keyword)
     

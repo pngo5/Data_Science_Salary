@@ -1,5 +1,18 @@
 # -*- coding: utf-8 -*-
 """
+Stackoverflow link :
+https://stackoverflow.com/questions/48665001/can-not-click-on-a-element-elementclickinterceptedexception-in-splinter-selen  
+https://stackoverflow.com/questions/36026676/python-selenium-timeout-exception-catch   
+  
+https://wonderproxy.com/blog/a-step-by-step-guide-to-setting-up-a-proxy-in-selenium/   
+https://towardsdatascience.com/selenium-tutorial-scraping-glassdoor-com-in-10-minutes-3d0915c6d905 
+https://www.simplilearn.com/tutorials/selenium-tutorial/selenium-interview-questions-and-answers
+https://sqa.stackexchange.com/questions/33778/chromedriver-in-headless-mode-doesnt-work-correctly-because-of-windows-user-pol
+
+Free = proxy 
+
+https://hidemy.name/en/proxy-list/?country=US&anon=1#list
+    
 Created on Mon Jan  4 09:25:21 2021
 
 @author: phatn
@@ -8,43 +21,73 @@ Created on Mon Jan  4 09:25:21 2021
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException,TimeoutException,ElementNotInteractableException
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 import time
 import pandas as pd
 
-def get_jobs2(keyword, num_jobs, verbose,path,slp_time):   
+def get_jobs(keyword,location, num_jobs, verbose,path,slp_time,proxy):   
+    
+    #https://github.com/SeleniumHQ/selenium/issues/4685
+    options = webdriver.ChromeOptions()
+    options.headless = True #Make sure the browser doesnt show up, and its run in the background.....
     
     '''Gathers jobs as a dataframe, scraped from Glassdoor'''
-
-    
-    ignored_exceptions=(NoSuchElementException,StaleElementReferenceException,)
-    options = webdriver.ChromeOptions()
+    if proxy:     
+             PROXY = "172.96.172.68:3128" # IP:PORT or HOST:PORT  
+             webdriver.DesiredCapabilities.CHROME['acceptSslCerts']=True #Getting chrome to accept the proxy
+             options.add_argument('--proxy-server=%s' % PROXY)
+     
+            
     driver = webdriver.Chrome(executable_path=path, options=options)
-    driver.set_window_size(1700, 1700) 
+    #driver.set_window_size(1700, 1700) 
     actions = ActionChains(driver)
-    url = "https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword="+keyword+"&sc.keyword="+keyword+"&locT=S&locId=3426&jobType="
-    clickable= False
-    employess =False                   
+    #driver.get("https://www.iplocation.net/find-ip-address")
+    
+    # url = "https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword="+keyword+"&sc.keyword="+keyword+"&locT=S&locId=3426&jobType="
+    url ='https://www.glassdoor.com/Job/jobs.htm?suggestCount=0&suggestChosen=false&clickSource=searchBtn&typedKeyword=&sc.keyword=&locT=&locId=&jobType='  
+    driver.set_window_size(1700, 1700) #Window size                 
     driver.get(url)
     jobs = []
+    
+
+    #Uses first variable in function to input job title
+    search = driver.find_element_by_id("LocationSearch").clear()
+    search = driver.find_element_by_id("KeywordSearch")
+    search.send_keys(keyword)
+    
+    #Uses second variable in function to input Location.  Use 'City,State OR Region'
+    search = driver.find_element_by_id("LocationSearch").clear()
+    search = driver.find_element_by_id("LocationSearch")
+    search.send_keys(location)
+    search.send_keys(Keys.RETURN)
+    
+    #Test for the "Sign Up" prompt and get rid of it.
+    time.sleep(slp_time)
+    
+    #Using this so the program can ignore the exceptions
+    ignored_exceptions=(NoSuchElementException,StaleElementReferenceException,TimeoutException) 
 
 
     while len(jobs) < num_jobs:  #If true, should be still looking for new jobs.
+    
+        clickable= False
+        employess =False
 
         #Let the page load. Change this number based on your internet speed.
         #Or, wait until the webpage is loaded, instead of hardcoding it.
         time.sleep(4)
+        
 
         #Test for the "Sign Up" prompt and get rid of it.
         
         
         try:
              selected= WebDriverWait(driver, slp_time).until(
-                EC.element_to_be_clickable((By.CLASS_NAME, "selected")))
+             EC.element_to_be_clickable((By.CLASS_NAME, "selected")))
              selected.click() 
              
              
@@ -61,15 +104,33 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
             pass
         
         if not clickable: 
-            try:                
-                WebDriverWait(driver, slp_time).until(
-                EC.presence_of_element_located((By.ID, "filter_minSalary"))).click()    
+            try:     
                 
-                WebDriverWait(driver, slp_time).until(
-                EC.presence_of_element_located((By.XPATH,'.//div[@class="checkboxBox"]'))).click()  
-                WebDriverWait(driver, slp_time).until(
-                EC.presence_of_element_located((By.XPATH, './/button[@class="applybutton gd-btn gd-btn-link gradient gd-btn-2 gd-btn-sm"]'))).click()  
+                clickable_filter1=WebDriverWait(driver, slp_time,ignored_exceptions=ignored_exceptions).until(
+                EC.element_to_be_clickable((By.ID,"filter_minSalary")))
+                driver.execute_script("arguments[0].click();", clickable_filter1)
+                
+               # WebDriverWait(driver, slp_time).until(
+                #EC.presence_of_element_located((By.ID, "filter_minSalary"))).click()    
+                
+                
+                clickable_filter2=WebDriverWait(driver, slp_time,ignored_exceptions=ignored_exceptions).until(
+                EC.element_to_be_clickable((By.XPATH,'.//div[@class="checkboxBox"]')))
+                driver.execute_script("arguments[0].click();", clickable_filter2)
+                
+                #WebDriverWait(driver, slp_time).until(
+                #EC.presence_of_element_located((By.XPATH,'.//div[@class="checkboxBox"]'))).click()  
+                
+                clickable_filter3=WebDriverWait(driver, slp_time,ignored_exceptions=ignored_exceptions).until(
+                EC.element_to_be_clickable((By.XPATH,'.//button[@class="applybutton gd-btn gd-btn-link gradient gd-btn-2 gd-btn-sm"]')))
+                driver.execute_script("arguments[0].click();", clickable_filter3)
+                
+               # WebDriverWait(driver, slp_time).until(
+               # EC.presence_of_element_located((By.XPATH, './/button[@class="applybutton gd-btn gd-btn-link gradient gd-btn-2 gd-btn-sm"]'))).click()  
+                
                 clickable = True 
+                
+                
                 print('Salary filter is working')
             except TimeoutException:
                 print('Can not find Salary filter')
@@ -78,19 +139,24 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
             
         if not employess: 
                try:
-                   WebDriverWait(driver, slp_time).until(
-                   EC.presence_of_element_located((By.XPATH,'.//div[@class="filter more expandable"]'))).click() 
+                   employess_filter1= WebDriverWait(driver, slp_time).until(
+                   EC.element_to_be_clickable((By.XPATH,'.//div[@class="filter more expandable"]')))
+                   employess_filter1.click()
                    
-                   WebDriverWait(driver, slp_time).until(
-                   EC.presence_of_element_located((By.XPATH,'.//div[@class="filter more expandable expanded"]//div[@id="filter_employerSizes"]'))).click() 
+                   employess_filter2 = WebDriverWait(driver, slp_time).until(
+                   EC.element_to_be_clickable((By.XPATH,'.//div[@class="filter more expandable expanded"]//div[@id="filter_employerSizes"]')))
+                   employess_filter2.click()
                    
-                   WebDriverWait(driver, slp_time).until(
-                   EC.presence_of_element_located((By.XPATH,'.//ul[@class="css-1dv4b0s ew8xong0"]//li[@value="5"]'))).click() 
+                   employess_filter3 = WebDriverWait(driver, slp_time).until(
+                   EC.element_to_be_clickable((By.XPATH,'//*[@id="dynamicFiltersContainer"]/div/div[1]/div[2]/div[2]/div[13]/ul/li[6]')))
+                   #'.//ul[@class="css-1dv4b0s ew8xong0"]//li[@value="5"]')))
+                   employess_filter3.click()
                    
-                   time.sleep(.1)   
+                   time.sleep(1)   
                    
-                   WebDriverWait(driver, slp_time).until(
-                   EC.presence_of_element_located((By.XPATH,'.//div[@class="allDropdowns"]//div[@class="filter more expandable expanded applied"]'))).click() 
+                   employess_filter4 = WebDriverWait(driver, slp_time).until(
+                   EC.element_to_be_clickable((By.XPATH,'.//div[@class="allDropdowns"]//div[@class="filter more expandable expanded applied"]')))
+                   employess_filter4.click()
                   
                    employess = True 
                    print('Company size filter working')
@@ -142,7 +208,7 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
                     collected_successfully = True
                                        
                 except (NoSuchElementException,TimeoutException,ElementNotInteractableException,StaleElementReferenceException):
-                    time.sleep(5)
+                    job_description = -1
                     
 
             try:
@@ -170,7 +236,7 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
             try:
                 tab_click=WebDriverWait(driver, slp_time,ignored_exceptions=ignored_exceptions).until(
                 EC.element_to_be_clickable((By.XPATH,'.//span[text()="Company"]')))
-                tab_click.click()
+                driver.execute_script("arguments[0].click();", tab_click)
                 #driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="overview"]').click()
 
 
@@ -230,12 +296,13 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
             try:
                 rating_click=WebDriverWait(driver, slp_time).until(
                 EC.presence_of_element_located((By.XPATH, './/span[text()="Rating"]')))
-                rating_click.click()
+                driver.execute_script("arguments[0].click();", rating_click)
+                
                 try:
                         ceo = driver.find_element_by_xpath('.//*[@id="RatingContainer"]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]').text
                                        
                 except (NoSuchElementException,ElementNotInteractableException,StaleElementReferenceException):                      
-                       ceo = -1
+                        ceo = -1
                 try:
                      culture_values = driver.find_element_by_xpath('.//strong[text()="Culture & Values"]//following-sibling::*').text
                    
@@ -261,7 +328,7 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
                 except (NoSuchElementException,ElementNotInteractableException,StaleElementReferenceException):
                        
                        work_life_balance = -1
-            except (NoSuchElementException,ElementNotInteractableException,StaleElementReferenceException):  #Rarely, some job postings do not have the "Company" tab.
+            except (NoSuchElementException,ElementNotInteractableException,StaleElementReferenceException,TimeoutException):  #Rarely, some job postings do not have the "Company" tab.
                 
                     compensation_benefits = -1
                     culture_values = -1
@@ -292,10 +359,7 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
             "Compensation & Benefits" : compensation_benefits,
             "Career Opportunities" : career_opportunities,
             "Work Life Balance" : work_life_balance,
-            
-            
-            
-            
+  
             
             })
             #add job to jobs
@@ -313,7 +377,7 @@ def get_jobs2(keyword, num_jobs, verbose,path,slp_time):
             
         except (NoSuchElementException,ElementNotInteractableException,StaleElementReferenceException):
             print("Scraping terminated before reaching target number of jobs. Needed {}, got {}.".format(num_jobs, len(jobs)))
-            #break
-            pass
+            break
+            
 
     return pd.DataFrame(jobs)  #This line converts the dictionary object into a pandas DataFrame.
