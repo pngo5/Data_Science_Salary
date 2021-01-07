@@ -8,6 +8,8 @@ https://wonderproxy.com/blog/a-step-by-step-guide-to-setting-up-a-proxy-in-selen
 https://towardsdatascience.com/selenium-tutorial-scraping-glassdoor-com-in-10-minutes-3d0915c6d905 
 https://www.simplilearn.com/tutorials/selenium-tutorial/selenium-interview-questions-and-answers
 
+Cookies-
+https://stackoverflow.com/questions/15058462/how-to-save-and-load-cookies-using-python-selenium-webdriver
 
 Free = proxy 
 
@@ -31,8 +33,7 @@ import pandas as pd
 
 def get_jobs(keyword,location, num_jobs, verbose,path,slp_time,proxy):   
     #Proxy and verbose are TRUE OR FALSE VALUES ONLY
-    
-    
+      
     options = webdriver.ChromeOptions() # Picking the brower type
     options.headless = False #Make sure the browser doesnt show up, and its run in the background.....
     
@@ -78,7 +79,6 @@ def get_jobs(keyword,location, num_jobs, verbose,path,slp_time,proxy):
 
     while len(jobs) < num_jobs:  #If true, should be still looking for new jobs.
        
-        
        
         #Let the page load. Change this number based on your internet speed.
         #Or, wait until the webpage is loaded, instead of hardcoding it.
@@ -105,6 +105,7 @@ def get_jobs(keyword,location, num_jobs, verbose,path,slp_time,proxy):
             #clicking to the X.
         except (NoSuchElementException,ElementNotInteractableException):
             pass
+ 
         
         if count < 2: 
             try:     
@@ -168,11 +169,19 @@ def get_jobs(keyword,location, num_jobs, verbose,path,slp_time,proxy):
                    print('Company filter failed')     
 
                    pass
-
+       
         
+    #   driver.refresh() #Bypassing the dom block on glassdoor
         #Going through each job in this page
-        job_buttons = driver.find_elements_by_class_name("jl") 
-      
+    #   refresh_filter = WebDriverWait(driver, slp_time).until(           
+    #    EC.presence_of_element_located((By.XPATH,'.//div[@class="allDropdowns"]//div[@class="filter more expandable expanded applied"]')))
+    #    refresh_filter.click()
+        
+        
+        try:
+            job_buttons = driver.find_elements_by_class_name("jl") 
+        except:
+            break
         
         #jl for Job Listing. These are the buttons we're going to click.
         for job_button in job_buttons:  
@@ -182,7 +191,10 @@ def get_jobs(keyword,location, num_jobs, verbose,path,slp_time,proxy):
                 break
         
             
+     
             driver.execute_script("arguments[0].click();", job_button)
+           
+          
             #You might 
             time.sleep(1)
             collected_successfully = False
@@ -262,7 +274,7 @@ def get_jobs(keyword,location, num_jobs, verbose,path,slp_time,proxy):
                     rating = driver.find_element_by_xpath('.//span[@class="rating"]').text
                     Rating_collected_successfully = True
                     
-                except (NoSuchElementException,ElementNotInteractableException):
+                except (NoSuchElementException,ElementNotInteractableException,StaleElementReferenceException):
                     
                     rating = -1 #You need to set a "not found value. It's important."
                     
