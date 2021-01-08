@@ -10,5 +10,5 @@ import pandas as pd
 
 path ="C:/Users/phatn/Data_Science_Salary/chromedriver"
 
-df = gs.get_jobs('data scientist', 'Atlanta, GA', 500, False, path, 15,False)
+df = gs.get_jobs('data scientist', 'Atlanta, GA', 500, False, path, 5,False)
 #df = gs.get_jobs2('data scientist',300,False,path,30)
